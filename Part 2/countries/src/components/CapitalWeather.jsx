@@ -1,4 +1,19 @@
-const CapitalWeather = ({ weather }) => {
+import { useState } from "react";
+import { useEffect } from "react";
+import countryService from "../services/countryService";
+
+const CapitalWeather = ({ capital }) => {
+	const [weather, setWeather] = useState(null)
+
+	useEffect(() => {
+		const apiKey = import.meta.env.VITE_WEATHER_KEY
+		if (apiKey)
+			countryService
+				.getWeather(capital, apiKey)
+				.then(data => setWeather(data))
+				.catch(() => setWeather(null))
+	}, [capital])
+
 	if (weather)
 		return (
 			<>

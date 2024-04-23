@@ -1,5 +1,4 @@
 const CountryList = ({ countries, setCurrentCountry }) => {
-
 	return (
 		<>
 			{countries.map((country, index) =>

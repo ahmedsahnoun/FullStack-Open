@@ -1,17 +1,16 @@
 import { useState, useEffect } from "react"
 import countryService from "./services/countryService"
 import CountryList from "./components/CountryList"
-import CountryDetails from "./components/CountrDetails"
+import CountryDetails from "./components/CountryDetails"
 import CapitalWeather from "./components/CapitalWeather"
 
 const App = () => {
-  const [apiKey, setApiKey] = useState(null)
   const [allCountries, setAllCountries] = useState([])
-  const [filteredCountries, setFilteredCountries] = useState([])
   const [search, setSearch] = useState('')
   const [currentCountry, setCurrentCountry] = useState('')
   const [currentCountryDetails, setCurrentCountryDetails] = useState(null)
-  const [currentCountryWeather, setCurrentCountryWeather] = useState(null)
+
+  const filteredCountries = allCountries.filter(country => country.toUpperCase().includes(search.toUpperCase()))
 
   const handleSearch = (e) => {
     const newSearch = e.target.value
@@ -19,7 +18,6 @@ const App = () => {
   }
 
   useEffect(() => {
-    setApiKey(import.meta.env.VITE_WEATHER_KEY)
     countryService
       .getAllCountries()
       .then(data => {
@@ -30,10 +28,8 @@ const App = () => {
     , [])
 
   useEffect(() => {
-    const newFilteredCountries = allCountries.filter(country => country.toUpperCase().includes(search.toUpperCase()))
-    setFilteredCountries(newFilteredCountries)
-    if (newFilteredCountries.length === 1) {
-      setCurrentCountry(newFilteredCountries[0])
+    if (filteredCountries.length === 1) {
+      setCurrentCountry(filteredCountries[0])
     }
     else {
       setCurrentCountry('')
@@ -48,15 +44,6 @@ const App = () => {
         .catch(() => setCurrentCountryDetails(null))
   }
     , [currentCountry])
-
-  useEffect(() => {
-    if (apiKey)
-      countryService
-        .getWeather(currentCountryDetails.capital[0], apiKey)
-        .then(data => setCurrentCountryWeather(data))
-        .catch(() => setCurrentCountryWeather(null))
-  }, [currentCountryDetails])
-
 
   return (
     <>
@@ -75,13 +62,13 @@ const App = () => {
         : <div>too many matches, specify another filter</div>
       }
 
-      {currentCountry ?
+      {currentCountry && currentCountryDetails ?
         <>
           <CountryDetails
             details={currentCountryDetails}
           ></CountryDetails>
           <CapitalWeather
-            weather={currentCountryWeather}
+            capital={currentCountryDetails.capital[0]}
           ></CapitalWeather>
         </>
         : <></>
